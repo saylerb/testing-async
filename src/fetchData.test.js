@@ -1,4 +1,4 @@
-import { fetchDataWithCatch, fetchData } from "./fetchData";
+import { fetchDataWithCatch, fetchData, somethingElse } from "./fetchData";
 import { getById } from "./starWarsResource";
 import data from "./data";
 
@@ -11,8 +11,6 @@ describe("fetchDataWithCatch", () => {
 
     const result = await fetchDataWithCatch(1)(dispatch);
 
-    //console.log(dispatch.mock.calls[0][0])
-
     expect(dispatch).toHaveBeenCalledTimes(1);
     expect(dispatch).toHaveBeenCalledWith({ type: "SUCCESS", payload: data });
   });
@@ -23,8 +21,6 @@ describe("fetchDataWithCatch", () => {
 
     const result = await fetchDataWithCatch(1)(dispatch);
 
-    //console.log(dispatch.mock.calls[0][0])
-
     expect(dispatch).toHaveBeenCalledTimes(1);
     expect(dispatch).toHaveBeenCalledWith({
       type: "ERROR",
@@ -34,23 +30,21 @@ describe("fetchDataWithCatch", () => {
 
   test("fetchData will dispatch error when dispatch throws error", async () => {
     getById.mockResolvedValue(data);
-    //const dispatch = jest.fn(() => Promise.reject("Something bad happened during the render"))
-    const dispatch = jest.fn(() => {
-      throw { error: "Something bad happened during the render" };
+    const dispatch = jest
+      .fn()
+      .mockImplementationOnce(() => {
+        throw { error: "Something bad happened during the render" };
+      })
+      .mockImplementationOnce(() => {});
+
+    const result = await fetchDataWithCatch(1)(dispatch);
+
+    expect(dispatch).toHaveBeenCalledTimes(2);
+    expect(dispatch).toHaveBeenCalledWith({ type: "SUCCESS", payload: data });
+    expect(dispatch).toHaveBeenCalledWith({
+      type: "ERROR",
+      payload: { error: "Something bad happened during the render" }
     });
-
-    try {
-      const result = await fetchDataWithCatch(1)(dispatch);
-    } catch (e) {
-      //console.log(e);
-
-      expect(dispatch).toHaveBeenCalledTimes(2);
-      expect(dispatch).toHaveBeenCalledWith({ type: "SUCCESS", payload: data });
-      expect(dispatch).toHaveBeenCalledWith({
-        type: "ERROR",
-        payload: { error: "Something bad happened during the render" }
-      });
-    }
   });
 });
 
@@ -58,10 +52,14 @@ describe("fetchData", () => {
   test("fetchData will NOT a second dispatch error when first dispatch throws error", async () => {
     getById.mockResolvedValue(data);
 
-    const dispatch = jest.fn(() => {
-      throw { error: "Something bad happened during the render" };
-    });
+    const dispatch = jest
+      .fn()
+      .mockImplementationOnce(() => {
+        throw { error: "Something bad happened during the render" };
+      })
+      .mockImplementationOnce(() => {});
 
+    // no catch block so we need to catch the error inside the test runner
     try {
       const result = await fetchData(1)(dispatch);
     } catch (e) {
