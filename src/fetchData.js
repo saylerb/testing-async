@@ -5,10 +5,23 @@ export function fetchDataWithCatch(id) {
   return function(dispatch) {
     return getById(id)
       .then(data => {
-        return dispatch({ type: "SUCCESS", payload: data });
+        dispatch({ type: "SUCCESS", payload: data });
       })
       .catch(error => {
-        return dispatch({ type: "ERROR", payload: error });
+        dispatch({ type: "ERROR", payload: error });
       });
+  };
+}
+
+export function fetchData(id) {
+  return function(dispatch) {
+    return getById(id).then(
+      data => {
+        dispatch({ type: "SUCCESS", payload: data });
+      },
+      error => {
+        dispatch({ type: "ERROR", payload: error });
+      }
+    );
   };
 }
