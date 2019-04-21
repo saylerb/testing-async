@@ -15,8 +15,8 @@
   },
   "scripts": {
     "test": "jest",
-    "format": "prettier --write \"./**/*.{js,json}\"",
-    "format:check": "prettier --check \"./**/*.{js,json}\""
+    "format": "prettier --write \"./**/*.{js,json,md}\"",
+    "format:check": "prettier --check \"./**/*.{js,json,md}\""
   },
   "author": "",
   "license": "ISC"
